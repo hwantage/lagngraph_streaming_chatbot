@@ -26,8 +26,8 @@
 
 1.  **프로젝트 클론 (필요시):**
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone https://github.com/hwantage/lagngraph_streaming_chatbot.git
+    cd lagngraph_streaming_chatbot
     ```
 
 2.  **의존성 패키지 설치:**
@@ -55,7 +55,7 @@
     ```
     서버는 `http://0.0.0.0:8001` 주소에서 실행됩니다.
 
-## API 엔드포인트
+## API 인터페이스
 
 ### `POST /stream-chat`
 
