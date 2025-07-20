@@ -106,6 +106,9 @@
     -   `stream_rag_response` (비동기 함수): 실제 스트리밍 로직을 담당합니다. `graph.astream_events`를 사용하여 LangGraph에서 발생하는 이벤트를 실시간으로 처리하며, `on_chat_model_stream` 이벤트가 발생할 때마다 해당 토큰을 클라이언트로 즉시 전송합니다.
     -   `/stream-chat` 엔드포인트: FastAPI의 `StreamingResponse`를 사용하여 `stream_rag_response` 함수가 생성하는 스트림을 클라이언트에 효율적으로 전달합니다.
 
+## UI 구성
+![chatbot ui](https://github.com/user-attachments/assets/2ea09c2f-1974-45dd-b79b-493102dc72b9)
+
 ## License
 
 MIT
