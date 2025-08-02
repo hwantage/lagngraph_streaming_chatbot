@@ -16,44 +16,47 @@
 ## 사전 요구사항
 
 - Python 3.9 이상
+- [uv](https://docs.astral.sh/uv/): Python 패키지 관리자 (권장)
 - [Ollama](https://ollama.com/): 로컬 환경에 설치되어 있어야 합니다.
-- Ollama 모델: 서버 코드에 명시된 모델(`hf.co/MLP-KTLim/llama-3-Korean-Bllossom-8B-gguf-Q4_K_M:Q4_K_M`)이 로컬에 설치되어 있어야 합니다.
+- Ollama 모델: 서버 코드에 명시된 모델(`cookieshake/kanana-1.5-8b-instruct-2505:Q4_K_M`)이 로컬에 설치되어 있어야 합니다.
   ```bash
-  ollama pull hf.co/MLP-KTLim/llama-3-Korean-Bllossom-8B-gguf-Q4_K_M:Q4_K_M
+  ollama pull cookieshake/kanana-1.5-8b-instruct-2505:Q4_K_M
   ```
 
 ## 설치 방법
 
-1.  **프로젝트 클론 (필요시):**
-    ```bash
-    git clone https://github.com/hwantage/lagngraph_streaming_chatbot.git
-    cd lagngraph_streaming_chatbot
-    ```
+### uv 사용
 
-2.  **의존성 패키지 설치:**
-    아래 내용을 `requirements.txt` 파일로 저장하고 다음 명령어를 실행하여 필요한 패키지를 설치합니다.
-    ```txt
-    fastapi
-    uvicorn[standard]
-    langchain-ollama
-    langgraph
-    pydantic
-    ```
-    ```bash
-    pip install -r requirements.txt
-    ```
+1. **uv 설치** (아직 설치하지 않은 경우):
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. **프로젝트 클론**:
+   ```bash
+   git clone https://github.com/hwantage/lagngraph_streaming_chatbot.git
+   cd lagngraph_streaming_chatbot
+   ```
+
+3. **가상환경 생성 및 의존성 설치**:
+   ```bash
+   uv venv
+   uv sync
+   ```
 
 ## 실행 방법
 
-1.  **Ollama 서버 실행:**
-    먼저 로컬 환경에서 Ollama 데스크톱 애플리케이션을 실행하거나, 터미널에서 `ollama serve` 명령을 실행하여 Ollama 서버가 동작 중인지 확인합니다.
+1. **Ollama 서버 실행**:
+   먼저 로컬 환경에서 Ollama 데스크톱 애플리케이션을 실행하거나, 터미널에서 `ollama serve` 명령을 실행하여 Ollama 서버가 동작 중인지 확인합니다.
 
-2.  **FastAPI 서버 실행:**
-    터미널에서 아래 명령어를 실행하여 챗봇봇 서버를 시작합니다.
-    ```bash
-    python langgraph_stream_server.py
-    ```
-    서버는 `http://0.0.0.0:8001` 주소에서 실행됩니다.
+2. **FastAPI 서버 실행**:
+   터미널에서 아래 명령어를 실행하여 챗봇 서버를 시작합니다.
+   ```bash
+   uv run langgraph_stream_server.py
+   ```
+   서버는 `http://0.0.0.0:8001` 주소에서 실행됩니다.
+
+   `웹브라우저`를 통해 `langgraph_stream_client.html` 파일을 띄워 테스트합니다.
 
 ## API 인터페이스
 
@@ -103,7 +106,7 @@
     -   `MemorySaver`: LangGraph의 체크포인터로, 대화 상태(메시지 기록)를 메모리에 저장하여 대화의 연속성을 보장합니다.
     -   `StateGraph`: `MessagesState`를 기반으로 대화의 상태 그래프를 정의합니다. `chatbot` 노드를 추가하여 LLM 호출 로직을 그래프에 통합합니다.
     -   `chatbot` (비동기 함수): 현재 대화 상태를 입력받아 시스템 메시지를 추가하고, `llm.astream`을 호출하여 응답을 비동기 스트림으로 생성합니다.
-    -   `stream_rag_response` (비동기 함수): 실제 스트리밍 로직을 담당합니다. `graph.astream_events`를 사용하여 LangGraph에서 발생하는 이벤트를 실시간으로 처리하며, `on_chat_model_stream` 이벤트가 발생할 때마다 해당 토큰을 클라이언트로 즉시 전송합니다.
+    -   `stream_rag_response` (비동기 함수): 실제 스트리밍 로직을 담당합니다. `graph.astream_events`를 사용하여 LangGraph에서 발생하는 이벤트를 실시간으로 처리하며, `on_chat_model_stream` 또는 `on_chain_stream` 이벤트가 발생할 때마다 해당 토큰을 클라이언트로 즉시 전송합니다.
     -   `/stream-chat` 엔드포인트: FastAPI의 `StreamingResponse`를 사용하여 `stream_rag_response` 함수가 생성하는 스트림을 클라이언트에 효율적으로 전달합니다.
 
 ## UI 구성

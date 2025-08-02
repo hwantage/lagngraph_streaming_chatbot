@@ -30,7 +30,7 @@ class QueryRequest(BaseModel):
 
 # ChatOllama 인스턴스 생성
 llm = ChatOllama(
-        model="hf.co/MLP-KTLim/llama-3-Korean-Bllossom-8B-gguf-Q4_K_M:Q4_K_M",
+        model="cookieshake/kanana-1.5-8b-instruct-2505:Q4_K_M",
         base_url="http://localhost:11434",
         temperature=0
     )
@@ -87,6 +87,7 @@ async def stream_rag_response(query: str, thread_id: str, selected_option: Optio
         # LangGraph의 비동기 스트리밍 실행
         async for event in graph.astream_events(input_state, config, version="v1"):
             kind = event["event"]
+            print(event)
             # 모델이 스트리밍하는 중간 토큰인 경우
             if kind == "on_chat_model_stream":
                 content = event["data"]["chunk"].content
@@ -97,6 +98,19 @@ async def stream_rag_response(query: str, thread_id: str, selected_option: Optio
                         "content": content
                     }
                     yield json.dumps(token_data, ensure_ascii=False) + "\n"
+            
+            if kind == "on_chain_stream":
+                # content 추출 경로 수정
+                chunk = event["data"]["chunk"]
+                if "messages" in chunk and chunk["messages"]:
+                    message = chunk["messages"][0]
+                    if hasattr(message, 'content') and message.content:
+                        # JSON 형식으로 클라이언트에 데이터 전송
+                        token_data = {
+                            "type": "token",
+                            "content": message.content
+                        }
+                        yield json.dumps(token_data, ensure_ascii=False) + "\n"
 
         # 응답 완료 후 고정된 추천 프롬프트 제공
         recommendation_data = {
